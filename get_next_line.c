@@ -1,6 +1,6 @@
 #include "get_next_line.h"
 
-/* // 1 - ft_strlen
+// 1 - ft_strlen
 size_t	ft_strlen(const char *s)
 {
 	unsigned int	i;
@@ -96,111 +96,109 @@ char	*ft_strchr(const char *s, int c)
 	if (str[i] == c)
 		return (&str[i]);
 	return (0);
-} */
-
-/////////////////////////////////////////////////////////////////////
-
-char	*ft_get_line(char *big_buffer, int len_line)
-{
-	int		i;
-	char	*line;
-
-	line = malloc(len_line + 1);
-	i = 0;
-	while (big_buffer[i] != '\n')
-	{
-		line[i] = big_buffer[i];
-		i++;
-	}
-	line[i] = '\0';
-	return (line);
 }
 
-int	ft_count_len(char *buffer)
+int	ft_count_len(char *next_line)
 {
-	int	i;
+	int i;
 
 	i = 0;
-	if (buffer == NULL || buffer == 0)
+	if (next_line == NULL || next_line == 0)
 		return (0);
 	else
 	{
-		while (buffer[i] != '\0')
+		while (next_line[i] != '\0')
 		{
-			if (buffer[i] == '\n')
+			if (next_line[i] == '\n')
 				return (i);
 			i++;
 		}
 		return (i);
 	}
 }
-
-char	*get_next_line(int fd)
+char	*ft_get_line(char *next_line)
 {
-	char		*buffer;
-	char		*line;
-	// char		*temp;
-	static char	*next_line;
-	static int	bytes_read = 1;
-	int			len_line;
+	int		i;
+	char	*line;
+	int		len_line;
 
-	// temp = NULL;
-	//If there's nothing to read and nothing on next_line, return NULL
-	if (bytes_read == 0 && (!next_line || *next_line == 0))
-		return (NULL);
-	
-	//malloc for buffer
-	buffer = malloc((BUFFER_SIZE + 1)*sizeof(char));
-	
-	//Initialize next_line as ""
-	if (next_line == 0)
-		next_line = ft_strdup("");
-	
-	//While it has more characters to read and doesn't find '\n'
-	while (ft_strchr(buffer, '\n') == 0 && bytes_read != 0)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read < 0)
-			return (NULL);
-		buffer[bytes_read] = '\0';
-		next_line = ft_strjoin(next_line, buffer);
-		//If bytes_read == 0, it's end of file -> add '/n'
-		if (bytes_read == 0)
-		{
-			len_line = ft_count_len(next_line);
-			next_line[len_line] = '\n';
-		}
-	}
-	
-	//calculate len to malloc
 	len_line = ft_count_len(next_line);
-	
-	//gets the line
-	line = ft_get_line(next_line, len_line);
-	
-	//next_line will save the rest after '/n'
-	next_line = ft_strchr(next_line, '\n');
-	
-	/* if there's more characters to read do this process again, 
-	so when the function is called again,
-		the value of buffer in the WHILE will be updated */
-	if (bytes_read != 0)
+	line = malloc(len_line + 1);
+	i = 0;
+	while (next_line[i] != '\n')
 	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read < 0)
-			return (NULL);
-		if (bytes_read > 0)
-		{
-			buffer[bytes_read] = '\0';
-			next_line = ft_strjoin(next_line, buffer);
-
-		}
+		line[i] = next_line[i];
+		i++;
 	}
-	return (free(buffer), line);
+	line[i] = '\0';
+	return (line);
+}
+
+char	*ft_get_next_line(char *next_line)
+{
+	int		i;
+	int		start;
+	int		len;
+	char	*new_line;
+
+	i = 0;
+	len = 0;
+	while (next_line[i] != '\n')
+		i++;
+	i++;
+	start = i;
+	while (next_line[i] != '\0')
+		i++;
+	len = i - start + 1;
+	new_line = malloc(len * sizeof(char));
+	i = 0;
+	while (i < len - 1)
+	{
+		new_line[i] = next_line[start];
+		i++;
+		start++;
+	}
+	return (new_line);
 }
 
 #include <stdio.h>
+char	*get_next_line(int fd)
+{
+	char		*buffer;
+	static char	*next_line;
+	char		*temp;
+	char		*line;
+	int			bytes_read;
+	int len_line;
+
+	if (next_line == 0)
+		next_line = ft_strdup("");
+	
+	buffer = malloc(BUFFER_SIZE + 1);
+	while (ft_strchr(buffer, '\n') == 0)
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		// if (bytes_read == 0)
+		// {
+		// 	len_line = ft_count_len(next_line);
+		// 	next_line[len_line] = '\n';
+		// 	buffer[bytes_read] = '\n';
+		// }
+
+		buffer[bytes_read] = '\0';
+		temp = next_line;
+		next_line = ft_strjoin(temp, buffer);
+		free(temp);
+	}
+
+	line = ft_get_line(next_line);
+	next_line = ft_get_next_line(next_line);
+
+	return (line);
+}
+
 #include <fcntl.h>
+#include <stdio.h>
 
 int	main(void)
 {
@@ -212,19 +210,19 @@ int	main(void)
 	//1
 	res = get_next_line(fd);
 	printf("1: %s\n", res);
-	
+
 	//2
 	res = get_next_line(fd);
 	printf("2: %s\n", res);
-	
+
 	//3
 	res = get_next_line(fd);
 	printf("3: %s\n", res);
-	
+
 	//4
 	res = get_next_line(fd);
 	printf("4: %s\n", res);
-	
+
 	//5
 	res = get_next_line(fd);
 	printf("5: %s\n", res);
