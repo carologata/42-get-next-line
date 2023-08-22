@@ -1,6 +1,6 @@
 #include "get_next_line.h"
 
-// 1 - ft_strlen
+/* // 1 - ft_strlen
 size_t	ft_strlen(const char *s)
 {
 	unsigned int	i;
@@ -130,7 +130,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 		return (NULL);
 	ft_memset(r, 0, nmemb * size);
 	return (r);
-}
+} */
 
 //-------------------------------------------------------------------
 
@@ -188,12 +188,20 @@ char	*ft_get_next_line(char *next_line)
 	len = 0;
 	while (next_line[i] != '\n' && next_line[i] != '\0')
 		i++;
+	if(next_line[i] == '\0')
+	{
+		free(next_line);
+		next_line = NULL;
+		return (NULL);
+	}
 	i++;
 	start = i;
 	while (next_line[i] != '\0')
 		i++;
 	len = i - start + 1;
 	new_line = ft_calloc(len, 1);
+	if(new_line == NULL)
+		return (NULL);
 	i = 0;
 	while (i < len - 1)
 	{
@@ -216,18 +224,24 @@ char	*get_next_line(int fd)
 
 	end_of_file = 0;
 
+	if(fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+
 	if (next_line == 0)
 		next_line = ft_strdup("");
 	
 	buffer = ft_calloc((BUFFER_SIZE + 1), 1);
+	if(buffer == NULL)
+		return (NULL);
+
 	while (ft_strchr(buffer, '\n') == 0 && end_of_file == 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 
-		if(!*next_line && !*buffer && bytes_read == 0)
+		if((!*next_line && !*buffer && bytes_read == 0) || bytes_read < 0)
 		{
 			free(next_line);
-			next_line = 0;
+			next_line = NULL;
 			free(buffer);
 			return (NULL);
 		}
@@ -248,15 +262,13 @@ char	*get_next_line(int fd)
 	line = ft_get_line(next_line);
 	temp = next_line;
 	next_line = ft_get_next_line(temp);
-	free(temp);
-
-	// if(end_of_file == 1)
-	// 	free(next_line);
+	if(next_line != NULL)
+		free(temp);
 
 	return (free(buffer), line);
 }
 
-#include <fcntl.h>
+/* #include <fcntl.h>
 #include <stdio.h>
 
 int	main(void)
@@ -264,7 +276,7 @@ int	main(void)
 	int fd;
 	char *res;
 
-	fd = open("teste.txt", O_RDWR);
+	fd = open("variable_nls.txt", O_RDWR);
 
 	//1
 	res = get_next_line(fd);
@@ -284,28 +296,50 @@ int	main(void)
 	//4
 	res = get_next_line(fd);
 	printf("4: %s", res);
+	free(res);
 
-/* 	//5
+	//5
 	res = get_next_line(fd);
 	printf("5: %s", res);
+	free(res);
 
 	//6
 	res = get_next_line(fd);
 	printf("6: %s", res);
+	free(res);
 
 	//7
 	res = get_next_line(fd);
 	printf("7: %s", res);
+	free(res);
 
 	//8
 	res = get_next_line(fd);
 	printf("8: %s", res);
+	free(res);
 
 	//9
 	res = get_next_line(fd);
 	printf("9: %s", res);
+	free(res);
 
 	//10
 	res = get_next_line(fd);
-	printf("10: %s", res); */
-}
+	printf("10: %s", res);
+	free(res); 
+
+	//11
+	res = get_next_line(fd);
+	printf("11: %s", res);
+	free(res); 
+
+	//12
+	res = get_next_line(fd);
+	printf("12: %s", res);
+	free(res); 
+
+	//13
+	res = get_next_line(fd);
+	printf("13: %s", res);
+	free(res); 
+} */
