@@ -169,7 +169,6 @@ char	*get_next_line(int fd)
 	char		*temp;
 	char		*line;
 	int			bytes_read;
-	int len_line;
 
 	if (next_line == 0)
 		next_line = ft_strdup("");
@@ -178,23 +177,26 @@ char	*get_next_line(int fd)
 	while (ft_strchr(buffer, '\n') == 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		// if (bytes_read == 0)
-		// {
-		// 	len_line = ft_count_len(next_line);
-		// 	next_line[len_line] = '\n';
-		// 	buffer[bytes_read] = '\n';
-		// }
 
-		buffer[bytes_read] = '\0';
+		if(!*next_line && !*buffer && bytes_read == 0)
+			return (free(buffer), free(next_line), NULL);
+		if(bytes_read > 0 && bytes_read < BUFFER_SIZE)
+			buffer[bytes_read] = '\n';
+		else if(bytes_read == BUFFER_SIZE)
+			buffer[bytes_read] = '\0';
+		else
+			break;
 		temp = next_line;
 		next_line = ft_strjoin(temp, buffer);
 		free(temp);
 	}
 
 	line = ft_get_line(next_line);
-	next_line = ft_get_next_line(next_line);
+	temp = next_line;
+	next_line = ft_get_next_line(temp);
+	free(temp);
 
-	return (line);
+	return (free(buffer), line);
 }
 
 #include <fcntl.h>
@@ -209,33 +211,36 @@ int	main(void)
 
 	//1
 	res = get_next_line(fd);
-	printf("1: %s\n", res);
+	printf("1: %s", res);
+	free(res);
 
 	//2
 	res = get_next_line(fd);
-	printf("2: %s\n", res);
+	printf("2: %s", res);
+	free(res);
 
 	//3
 	res = get_next_line(fd);
-	printf("3: %s\n", res);
+	printf("3: %s", res);
+	free(res);
 
 	//4
 	res = get_next_line(fd);
-	printf("4: %s\n", res);
+	printf("4: %s", res);
 
 	//5
 	res = get_next_line(fd);
-	printf("5: %s\n", res);
+	printf("5: %s", res);
 
 	//6
 	res = get_next_line(fd);
-	printf("6: %s\n", res);
+	printf("6: %s", res);
 
 	//7
 	res = get_next_line(fd);
-	printf("7: %s\n", res);
+	printf("7: %s", res);
 
 	//8
 	res = get_next_line(fd);
-	printf("8: %s\n", res);
+	printf("8: %s", res);
 }
