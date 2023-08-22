@@ -97,3 +97,37 @@ char	*ft_strchr(const char *s, int c)
 		return (&str[i]);
 	return (0);
 }
+
+void	*ft_memset(void *s, int c, size_t n)
+{
+	size_t			i;
+	unsigned char	*str;
+	unsigned char	u;
+
+	str = (unsigned char *)s;
+	u = (unsigned char)c;
+	i = 0;
+	while (i < n)
+	{
+		str[i] = u;
+		i++;
+	}
+	return (s);
+}
+
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	void	*r;
+	size_t	size_t_max;
+
+	if (nmemb == 0 || size == 0)
+		return (malloc(0));
+	size_t_max = -1;
+	if (size != 0 && (nmemb >= size_t_max / size))
+		return (NULL);
+	r = malloc(nmemb * size);
+	if (r == NULL)
+		return (NULL);
+	ft_memset(r, 0, nmemb * size);
+	return (r);
+}

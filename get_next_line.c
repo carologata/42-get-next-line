@@ -98,6 +98,42 @@ char	*ft_strchr(const char *s, int c)
 	return (0);
 }
 
+void	*ft_memset(void *s, int c, size_t n)
+{
+	size_t			i;
+	unsigned char	*str;
+	unsigned char	u;
+
+	str = (unsigned char *)s;
+	u = (unsigned char)c;
+	i = 0;
+	while (i < n)
+	{
+		str[i] = u;
+		i++;
+	}
+	return (s);
+}
+
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	void	*r;
+	size_t	size_t_max;
+
+	if (nmemb == 0 || size == 0)
+		return (malloc(0));
+	size_t_max = -1;
+	if (size != 0 && (nmemb >= size_t_max / size))
+		return (NULL);
+	r = malloc(nmemb * size);
+	if (r == NULL)
+		return (NULL);
+	ft_memset(r, 0, nmemb * size);
+	return (r);
+}
+
+//-------------------------------------------------------------------
+
 int	ft_count_len(char *next_line)
 {
 	int i;
@@ -123,14 +159,21 @@ char	*ft_get_line(char *next_line)
 	int		len_line;
 
 	len_line = ft_count_len(next_line);
-	line = malloc(len_line + 1);
+	line = malloc(len_line + 2);
 	i = 0;
-	while (next_line[i] != '\n')
+	while (next_line[i] != '\0' && next_line[i] != '\n')
 	{
 		line[i] = next_line[i];
 		i++;
 	}
-	line[i] = '\0';
+	if(next_line[i] == '\n')
+	{
+		line[i] = '\n';
+		line[i+1] = '\0';
+	}
+	else
+		line[i] = '\0';
+
 	return (line);
 }
 
@@ -143,14 +186,14 @@ char	*ft_get_next_line(char *next_line)
 
 	i = 0;
 	len = 0;
-	while (next_line[i] != '\n')
+	while (next_line[i] != '\n' && next_line[i] != '\0')
 		i++;
 	i++;
 	start = i;
 	while (next_line[i] != '\0')
 		i++;
 	len = i - start + 1;
-	new_line = malloc(len * sizeof(char));
+	new_line = ft_calloc(len, 1);
 	i = 0;
 	while (i < len - 1)
 	{
@@ -169,19 +212,30 @@ char	*get_next_line(int fd)
 	char		*temp;
 	char		*line;
 	int			bytes_read;
+	int end_of_file;
+
+	end_of_file = 0;
 
 	if (next_line == 0)
 		next_line = ft_strdup("");
 	
-	buffer = malloc(BUFFER_SIZE + 1);
-	while (ft_strchr(buffer, '\n') == 0)
+	buffer = ft_calloc((BUFFER_SIZE + 1), 1);
+	while (ft_strchr(buffer, '\n') == 0 && end_of_file == 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 
 		if(!*next_line && !*buffer && bytes_read == 0)
-			return (free(buffer), free(next_line), NULL);
+		{
+			free(next_line);
+			next_line = 0;
+			free(buffer);
+			return (NULL);
+		}
 		if(bytes_read > 0 && bytes_read < BUFFER_SIZE)
-			buffer[bytes_read] = '\n';
+		{
+			buffer[bytes_read] = '\0';
+			end_of_file = 1;
+		}	
 		else if(bytes_read == BUFFER_SIZE)
 			buffer[bytes_read] = '\0';
 		else
@@ -195,6 +249,9 @@ char	*get_next_line(int fd)
 	temp = next_line;
 	next_line = ft_get_next_line(temp);
 	free(temp);
+
+	// if(end_of_file == 1)
+	// 	free(next_line);
 
 	return (free(buffer), line);
 }
@@ -228,7 +285,7 @@ int	main(void)
 	res = get_next_line(fd);
 	printf("4: %s", res);
 
-	//5
+/* 	//5
 	res = get_next_line(fd);
 	printf("5: %s", res);
 
@@ -243,4 +300,12 @@ int	main(void)
 	//8
 	res = get_next_line(fd);
 	printf("8: %s", res);
+
+	//9
+	res = get_next_line(fd);
+	printf("9: %s", res);
+
+	//10
+	res = get_next_line(fd);
+	printf("10: %s", res); */
 }
