@@ -1,6 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cogata <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/23 14:12:26 by cogata            #+#    #+#             */
+/*   Updated: 2023/08/23 14:12:28 by cogata           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
-// 1 - ft_strlen
 size_t	ft_strlen(const char *s)
 {
 	unsigned int	i;
@@ -13,7 +24,6 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-// 2 - ft_strdup
 char	*ft_strdup(const char *s)
 {
 	char	*dest;
@@ -34,12 +44,17 @@ char	*ft_strdup(const char *s)
 	return (dest);
 }
 
-// ft_copy_str
-char	*ft_copy_str(char const *s1, char const *s2, char *res)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
-	int	i;
-	int	j;
+	char	*res;
+	int		i;
+	int		j;
 
+	if (s1 == NULL || s2 == NULL)
+		return (NULL);
+	res = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (res == NULL)
+		return (NULL);
 	i = 0;
 	while (s1[i] != '\0')
 	{
@@ -57,25 +72,6 @@ char	*ft_copy_str(char const *s1, char const *s2, char *res)
 	return (res);
 }
 
-// 3 - ft_strjoin
-char	*ft_strjoin(char const *s1, char const *s2)
-{
-	char	*res;
-	size_t	len1;
-	size_t	len2;
-
-	if (s1 == NULL || s2 == NULL)
-		return (NULL);
-	len1 = ft_strlen(s1);
-	len2 = ft_strlen(s2);
-	res = malloc(len1 + len2 + 1);
-	if (res == NULL)
-		return (NULL);
-	ft_copy_str(s1, s2, res);
-	return (res);
-}
-
-// 4 - ft_strchr
 char	*ft_strchr(const char *s, int c)
 {
 	int				i;
@@ -89,7 +85,7 @@ char	*ft_strchr(const char *s, int c)
 	{
 		if (str[i] == u)
 		{
-			return (&str[i+1]);
+			return (&str[i + 1]);
 		}
 		i++;
 	}
@@ -98,28 +94,15 @@ char	*ft_strchr(const char *s, int c)
 	return (0);
 }
 
-void	*ft_memset(void *s, int c, size_t n)
-{
-	size_t			i;
-	unsigned char	*str;
-	unsigned char	u;
-
-	str = (unsigned char *)s;
-	u = (unsigned char)c;
-	i = 0;
-	while (i < n)
-	{
-		str[i] = u;
-		i++;
-	}
-	return (s);
-}
-
 void	*ft_calloc(size_t nmemb, size_t size)
 {
-	void	*r;
-	size_t	size_t_max;
+	void			*r;
+	size_t			size_t_max;
+	size_t			i;
+	unsigned char	*str;
+	size_t			total_size;
 
+	total_size = nmemb * size;
 	if (nmemb == 0 || size == 0)
 		return (malloc(0));
 	size_t_max = -1;
@@ -128,6 +111,12 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	r = malloc(nmemb * size);
 	if (r == NULL)
 		return (NULL);
-	ft_memset(r, 0, nmemb * size);
+	str = (unsigned char *)r;
+	i = 0;
+	while (i < total_size)
+	{
+		str[i] = 0;
+		i++;
+	}
 	return (r);
 }

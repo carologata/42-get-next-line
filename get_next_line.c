@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cogata <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/23 14:12:11 by cogata            #+#    #+#             */
+/*   Updated: 2023/08/23 14:42:42 by cogata           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 int	ft_count_len(char *next_line)
@@ -17,12 +29,6 @@ int	ft_count_len(char *next_line)
 		}
 		return (i);
 	}
-}
-
-void	ft_free(char *str)
-{
-	free(str);
-	str = NULL;
 }
 
 char	*ft_get_line(char *next_line)
@@ -61,7 +67,7 @@ char	*ft_get_next_line(char *next_line)
 		i++;
 	if (next_line[i] == '\0')
 	{
-		ft_free(next_line);
+		free(next_line);
 		return (NULL);
 	}
 	i++;
@@ -78,7 +84,7 @@ char	*ft_get_next_line(char *next_line)
 	return (new_line);
 }
 
-/* void	ft_read_file(char *buffer, char *next_line, int fd)
+char	*ft_read_file(char *buffer, char *next_line, int fd)
 {
 	char	*temp;
 	int		bytes_read;
@@ -101,9 +107,8 @@ char	*ft_get_next_line(char *next_line)
 		next_line = ft_strjoin(temp, buffer);
 		free(temp);
 	}
-} */
-
-#include <stdio.h>
+	return (next_line);
+}
 
 char	*get_next_line(int fd)
 {
@@ -111,9 +116,6 @@ char	*get_next_line(int fd)
 	static char	*next_line;
 	char		*temp;
 	char		*line;
-	int		bytes_read;
-
-	bytes_read = 1;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
@@ -121,24 +123,10 @@ char	*get_next_line(int fd)
 		next_line = ft_strdup("");
 	buffer = ft_calloc((BUFFER_SIZE + 1), 1);
 	if (buffer == NULL)
-		return (NULL);	
-	while (ft_strchr(buffer, '\n') == 0 && bytes_read != 0)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if ((!*next_line && !*buffer && bytes_read == 0) || bytes_read < 0)
-		{
-			free(next_line);
-			next_line = NULL;
-			free(buffer);
-			return (NULL);
-		}
-		if (bytes_read == 0)
-			break ;
-		buffer[bytes_read] = '\0';
-		temp = next_line;
-		next_line = ft_strjoin(temp, buffer);
-		free(temp);
-	}
+		return (NULL);
+	next_line = ft_read_file(buffer, next_line, fd);
+	if (next_line == NULL)
+		return (NULL);
 	line = ft_get_line(next_line);
 	temp = next_line;
 	next_line = ft_get_next_line(temp);
